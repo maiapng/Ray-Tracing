@@ -1,6 +1,7 @@
 from math import sqrt, atan2
-class Vector3:
-    def __init__(self, x=0, y=0, z=0):
+
+class Vector3(object):
+    def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
@@ -40,6 +41,9 @@ class Vector3:
             self.z / other
         )
 
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
+
     def abs(self):
         return Vector3(abs(self.x), abs(self.y), abs(self.z))
 
@@ -48,7 +52,7 @@ class Vector3:
     
     def cross(self, other:Vector3):
         return Vector3(
-            (self.y * other.z) - (self.z - other.y),
+            (self.y * other.z) - (self.z * other.y),
             (self.z * other.x) - (self.x * other.z),
             (self.x * other.y) - (self.y * other.x)
         )
@@ -81,5 +85,5 @@ class Vector3:
     def distance_to(self, to:Vector3):
         return sqrt((to.x - self.x)**2 + (to.y - self.y)**2 + (to.z - self.z)**2)
 
-    def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
+    def get_any_perpendicular(self):
+        return self.cross(Vector3(1,0,0) if (abs(self.x) <= abs(self.y) and abs(self.x) <= abs(self.z)) else Vector3(0,1,0)).normalized();
