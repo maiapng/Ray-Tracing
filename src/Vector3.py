@@ -1,6 +1,6 @@
 from math import sqrt, atan2
 
-class Vector3(object):
+class Vector3(object):    
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -40,6 +40,9 @@ class Vector3(object):
             self.y / other,
             self.z / other
         )
+    
+    def __neg__(self):
+        return Vector3(-self.x, -self.y, - self.z)
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
@@ -86,4 +89,6 @@ class Vector3(object):
         return sqrt((to.x - self.x)**2 + (to.y - self.y)**2 + (to.z - self.z)**2)
 
     def get_any_perpendicular(self):
-        return self.cross(Vector3(1,0,0) if (abs(self.x) <= abs(self.y) and abs(self.x) <= abs(self.z)) else Vector3(0,1,0)).normalized();
+        return self.cross(
+            Vector3(1,0,0) if (abs(self.x)<=abs(self.y) and abs(self.x)<=abs(self.z)) else Vector3(0,1,0)
+        ).normalized();
