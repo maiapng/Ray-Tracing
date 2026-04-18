@@ -1,9 +1,13 @@
 from src.Vector3 import Vector3
 from src.Camera import Camera
-import sys
+from utils.Scene.sceneParser import SceneJsonLoader
+from pathlib import Path
+
+scene_file = Path(__file__).parent / "utils" / "input" / "sampleScene.json"
 
 def main():
-    camera = Camera(Vector3(1,1,0), Vector3(50,3,2), 5, (160,120))
+    scene = SceneJsonLoader.load_file(str(scene_file))
+    camera = Camera(scene.camera)
     camera.trace_image()
 
 if __name__ == "__main__":
