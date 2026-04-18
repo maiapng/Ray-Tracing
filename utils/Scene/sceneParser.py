@@ -3,8 +3,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from src.Ponto import Ponto
-from src.Vetor import Vetor
+from src.Vector3 import Vector3
 from utils.Scene.sceneSchema import (
     CameraData, ColorData, LightData, MaterialData,
     ObjectData, SceneData, TransformData,
@@ -51,14 +50,14 @@ class SceneJsonLoader:
         return ColorData(r, g, b)
 
     @staticmethod
-    def _parse_vetor(value, what="vector") -> Vetor:
+    def _parse_vetor(value, what="vector") -> Vector3:
         x, y, z = SceneJsonLoader._read_triple(value, what)
-        return Vetor(x, y, z)
+        return Vector3(x, y, z)
 
     @staticmethod
-    def _parse_ponto(value, what="point") -> Ponto:
+    def _parse_ponto(value, what="point") -> Vector3:
         x, y, z = SceneJsonLoader._read_triple(value, what)
-        return Ponto(x, y, z)
+        return Vector3(x, y, z)
 
     @staticmethod
     def _is_triplet(value) -> bool:
@@ -192,7 +191,7 @@ class SceneJsonLoader:
                 v = SceneJsonLoader._parse_vetor(val, f"object.{key}")
                 obj.vetor_point_data[key] = v
                 if key in SceneJsonLoader._POSITION_HINTS:
-                    obj.relative_pos = Ponto(v.x, v.y, v.z)
+                    obj.relative_pos = Vector3(v.x, v.y, v.z)
             elif isinstance(val, list) or isinstance(val, dict):
                 pass  # estruturas complexas ignoradas (ex: listas de faces inline)
 

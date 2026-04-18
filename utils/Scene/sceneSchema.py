@@ -2,9 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from src.Ponto import Ponto
-from src.Vetor import Vetor
-
+from src.Vector3 import Vector3
 
 @dataclass
 class ColorData:
@@ -18,9 +16,9 @@ class ColorData:
 
 @dataclass
 class CameraData:
-    lookfrom:        Ponto = field(default_factory=lambda: Ponto(0, 0, 0))
-    lookat:          Ponto = field(default_factory=lambda: Ponto(0, 0, -1))
-    up_vector:       Vetor = field(default_factory=lambda: Vetor(0, 1, 0))
+    lookfrom:        Vector3 = field(default_factory=lambda: Vector3(0, 0, 0))
+    lookat:          Vector3 = field(default_factory=lambda: Vector3(0, 0, -1))
+    up_vector:       Vector3 = field(default_factory=lambda: Vector3(0, 1, 0))
     image_width:     int   = 800
     image_height:    int   = 800
     screen_distance: float = 1.0
@@ -29,7 +27,7 @@ class CameraData:
 @dataclass
 class TransformData:
     t_type: str   = ""  # "translation" | "scaling" | "rotation"
-    data:   Vetor = field(default_factory=lambda: Vetor(0, 0, 0))
+    data:   Vector3 = field(default_factory=lambda: Vector3(0, 0, 0))
 
 
 @dataclass
@@ -47,7 +45,7 @@ class MaterialData:
 
 @dataclass
 class LightData:
-    pos:        Ponto          = field(default_factory=lambda: Ponto(0, 0, 0))
+    pos:        Vector3          = field(default_factory=lambda: Vector3(0, 0, 0))
     color:      ColorData      = field(default_factory=ColorData)
     extra_data: Dict[str, str] = field(default_factory=dict)
 
@@ -55,10 +53,10 @@ class LightData:
 @dataclass
 class ObjectData:
     obj_type:         str                 = ""
-    relative_pos:     Ponto               = field(default_factory=lambda: Ponto(0, 0, 0))
+    relative_pos:     Vector3               = field(default_factory=lambda: Vector3(0, 0, 0))
     material:         MaterialData        = field(default_factory=MaterialData)
     numeric_data:     Dict[str, float]    = field(default_factory=dict)
-    vetor_point_data: Dict[str, Vetor]    = field(default_factory=dict)
+    vetor_point_data: Dict[str, Vector3]    = field(default_factory=dict)
     other_properties: Dict[str, str]      = field(default_factory=dict)
     transforms:       List[TransformData] = field(default_factory=list)
 
@@ -68,12 +66,12 @@ class ObjectData:
     def get_int(self, key: str) -> int:
         return int(self.numeric_data[key])
 
-    def get_vetor(self, key: str) -> Vetor:
+    def get_vetor(self, key: str) -> Vector3:
         return self.vetor_point_data[key]
 
-    def get_ponto(self, key: str) -> Ponto:
+    def get_ponto(self, key: str) -> Vector3:
         v = self.vetor_point_data[key]
-        return Ponto(v.x, v.y, v.z)
+        return Vector3(v.x, v.y, v.z)
 
     def get_property(self, key: str) -> str:
         return self.other_properties[key]
