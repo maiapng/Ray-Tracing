@@ -4,5 +4,5 @@ import time
 
 nm = str(int(time.time()))
 
-im = Image.open("out.ppm")
-im.save(f"./renders/{nm}.jpg")
+im = Image.open("resultado.ppm")
+im.save(f"renders/{nm}.jpg")

@@ -6,14 +6,14 @@ class Vector3(object):
         self.y = y
         self.z = z
 
-    def __add__(self, other:Vector3):
+    def __add__(self, other:'Vector3'):
         return Vector3(
             self.x + other.x,
             self.y + other.y,
             self.z + other.z
         )
 
-    def __sub__(self, other:Vector3):
+    def __sub__(self, other:'Vector3'):
         return Vector3(
             self.x - other.x,
             self.y - other.y,
@@ -50,18 +50,18 @@ class Vector3(object):
     def abs(self):
         return Vector3(abs(self.x), abs(self.y), abs(self.z))
 
-    def dot(self, other:Vector3):
+    def dot(self, other:'Vector3'):
         return self.x*other.x + self.y*other.y + self.z*other.z
     
-    def cross(self, other:Vector3):
+    def cross(self, other:'Vector3'):
         return Vector3(
             (self.y * other.z) - (self.z * other.y),
             (self.z * other.x) - (self.x * other.z),
             (self.x * other.y) - (self.y * other.x)
         )
     
-    def angle_to(self, other:Vector3):
-        return atan2(self.cross(other).length(), self.dot(  other))
+    def angle_to(self, other:'Vector3'):
+        return atan2(self.cross(other).length(), self.dot( other))
 
     def length_squared(self):
         return self.x**2 + self.y**2 + self.z**2
@@ -79,13 +79,13 @@ class Vector3(object):
         self.z /= length
         return self
 
-    def direction_to(self, to:Vector3):
+    def direction_to(self, to:'Vector3'):
         return (to - self).normalized()
     
-    def distance_squared_to(self, to:Vector3):
+    def distance_squared_to(self, to:'Vector3'):
         return (to.x - self.x)**2 + (to.y - self.y)**2 + (to.z - self.z)**2
 
-    def distance_to(self, to:Vector3):
+    def distance_to(self, to:'Vector3'):
         return sqrt((to.x - self.x)**2 + (to.y - self.y)**2 + (to.z - self.z)**2)
 
     def get_any_perpendicular(self):

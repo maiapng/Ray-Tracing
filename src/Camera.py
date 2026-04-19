@@ -8,7 +8,7 @@ class Camera(object):
         self.screen_distance:float = camera_data.screen_distance
         self.screen_resolution:tuple[int,int] = (camera_data.image_width, camera_data.image_height)
 
-        self.w:Vector3 = self.look_direction.normalized()
+        self.w = (self.look_direction - self.position).normalized()
         self.u:Vector3 = camera_data.up_vector.normalized()
         self.v:Vector3 = self.w.cross(self.u).normalized()
 
@@ -16,18 +16,18 @@ class Camera(object):
         plane_point:Vector3 = plane.get_vetor("point_on_plane")
         plane_normal:Vector3 = plane.get_vetor("normal")
         if ray_direction.dot(plane_normal) == 0:
-            print("doesn't intersect")
+            #print("doesn't intersect")
             return None
         t = (plane_point - ray_position).dot(plane_normal) / ray_direction.dot(plane_normal)
         if t < 0:
-            print("INVERSE intersect")
+            #print("INVERSE intersect")
             return None
-        print(t)
+        #print(t)
         return t
 
     def sphere_intersect(self, sphere:ObjectData, ray_position:Vector3, ray_direction:Vector3):
-        sphere_center:Vector3 = sphere.get_vector("center")
-        radius:float = sphere.get_float("radius")
+        sphere_center:Vector3 = sphere.get_vetor("center")
+        radius = sphere.get_num("radius")
 
         vetor_radius:Vector3 = ray_position - sphere_center
         a = ray_direction.dot(ray_direction)
@@ -40,25 +40,47 @@ class Camera(object):
         t = (-b - (delta) ** 0.5) / (2.0 * a)
 
         if t < 0:
+            #print("INVERSE intersect")
             return None
         return t
 
     def scene_intersect(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
+
+        Object = None
+        nearness   = float('inf')
+
         for obj in scene.objects:
+            t = None
             if obj.obj_type == "plane":
-                self.plane_intersect(obj, ray_position, ray_direction)
+               t = self.plane_intersect(obj, ray_position, ray_direction)
             elif obj.obj_type == "sphere":
                 t = self.sphere_intersect(obj, ray_position, ray_direction)
+            if t is not None and t < nearness:
+                nearness = t
+                Object = obj
+
+        return nearness, Object
 
     def trace_ray(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
-        self.scene_intersect(scene, ray_position ,ray_direction)
+        t, obj = self.scene_intersect(scene, ray_position, ray_direction)
+        if obj:
+            color = obj.material.color
+            return Vector3(color.r * 255, color.g * 255, color.b * 255)
+        return Vector3(0, 0, 0)
 
     def trace_image(self, scene:SceneData):
-        for i in scene.objects: print(i)
+        width = self.screen_resolution[0]
+        height = self.screen_resolution[1]
+        print("P3")
+        print(f"{width} {height}")
+        print("255")
         screen_position:Vector3 = self.position + self.w*self.screen_distance 
-        for x in range(-self.screen_resolution[0], self.screen_resolution[0]):
-            for y in range(-self.screen_resolution[1], self.screen_resolution[1]):
-                pixel_position:Vector3 = screen_position + x*self.u + y*self.v
+        for y in range(height):
+            for x in range(width):
+                u_cord = (x / (width - 1)) - 0.5
+                v_cord = (y / (height - 1)) - 0.5
+                pixel_position:Vector3 = screen_position + u_cord*self.u + (-v_cord)*self.v
                 pixel_direction:Vector3 = (pixel_position - self.position).normalized()
-                self.trace_ray(scene, self.position, pixel_direction)
-                break
+
+                color = self.trace_ray(scene, self.position, pixel_direction)
+                print(f"{int(color.x)} {int(color.y)} {int(color.z)}")
