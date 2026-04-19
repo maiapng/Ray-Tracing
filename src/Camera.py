@@ -14,12 +14,16 @@ class Camera(object):
 
     def plane_intersect(self, plane:ObjectData, ray_position:Vector3, ray_direction:Vector3):
         plane_point:Vector3 = plane.get_vetor("point_on_plane")
-        plane_normal:Vector3 = plane.get_vetor("point_on_plane")
+        plane_normal:Vector3 = plane.get_vetor("normal")
         if ray_direction.dot(plane_normal) == 0:
             print("doesn't intersect")
             return
-        t = (plane_point - ray_position) * plane_normal / ray_direction.dot(plane_normal)
+        t = (plane_point - ray_position).dot(plane_normal) / ray_direction.dot(plane_normal)
+        if t < 0:
+            print("INVERSE intersect")
+            return
         print(t)
+
 
     def scene_intersect(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
         for obj in scene.objects:
