@@ -17,18 +17,38 @@ class Camera(object):
         plane_normal:Vector3 = plane.get_vetor("normal")
         if ray_direction.dot(plane_normal) == 0:
             print("doesn't intersect")
-            return
+            return None
         t = (plane_point - ray_position).dot(plane_normal) / ray_direction.dot(plane_normal)
         if t < 0:
             print("INVERSE intersect")
-            return
+            return None
         print(t)
+        return t
 
+    def sphere_intersect(self, sphere:ObjectData, ray_position:Vector3, ray_direction:Vector3):
+        sphere_center:Vector3 = sphere.get_vector("center")
+        radius:float = sphere.get_float("radius")
+
+        vetor_radius:Vector3 = ray_position - sphere_center
+        a = ray_direction.dot(ray_direction)
+        b = 2.0 * vetor_radius.dot(ray_direction)
+        c = vetor_radius.dot(vetor_radius) - radius * radius
+        delta = b * b - 4 * a * c
+
+        if delta < 0:
+            return None
+        t = (-b - (delta) ** 0.5) / (2.0 * a)
+
+        if t < 0:
+            return None
+        return t
 
     def scene_intersect(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
         for obj in scene.objects:
             if obj.obj_type == "plane":
                 self.plane_intersect(obj, ray_position, ray_direction)
+            elif obj.obj_type == "sphere":
+                t = self.sphere_intersect(obj, ray_position, ray_direction)
 
     def trace_ray(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
         self.scene_intersect(scene, ray_position ,ray_direction)
