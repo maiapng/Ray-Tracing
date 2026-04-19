@@ -46,10 +46,8 @@ class Camera(object):
         return t
 
     def scene_intersect(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
-
         Object = None
         nearness   = float('inf')
-
         for obj in scene.objects:
             t = None
             if obj.obj_type == "plane":
@@ -59,7 +57,6 @@ class Camera(object):
             if t is not None and t < nearness:
                 nearness = t
                 Object = obj
-
         return nearness, Object
 
     def trace_ray(self, scene:SceneData, ray_position:Vector3, ray_direction:Vector3):
@@ -70,17 +67,16 @@ class Camera(object):
         return Vector3(0, 0, 0)
 
     def trace_image(self, scene:SceneData):
-        width = self.screen_resolution[0]
-        height = self.screen_resolution[1]
-        print("P3")
-        print(f"{width} {height}")
-        print("255")
-        screen_position:Vector3 = self.position + self.w*self.screen_distance
-        for y in range(height):
-            for x in range(width):  
-                u_cord = (x / (width - 1)) - 0.5
-                v_cord = (y / (height - 1)) - 0.5
-                pixel_position:Vector3 = screen_position + u_cord*self.u + (-v_cord)*self.v
-                pixel_direction:Vector3 = (pixel_position - self.position).normalized()
-                color = self.trace_ray(scene, self.position, pixel_direction)
-                print(f"{int(color.x)} {int(color.y)} {int(color.z)}")
+        with open("resultado.ppm", "w") as file:
+            width = self.screen_resolution[0]
+            height = self.screen_resolution[1]
+            file.write(f"P3\n{width} {height}\n255\n")
+            screen_position:Vector3 = self.position + self.w*self.screen_distance
+            for y in range(height):
+                for x in range(width):  
+                    u_cord = (x / (width - 1)) - 0.5
+                    v_cord = (y / (height - 1)) - 0.5
+                    pixel_position:Vector3 = screen_position + u_cord*self.u + (-v_cord)*self.v
+                    pixel_direction:Vector3 = (pixel_position - self.position).normalized()
+                    color = self.trace_ray(scene, self.position, pixel_direction)
+                    file.write(f"{int(color.x)} {int(color.y)} {int(color.z)}\n")
