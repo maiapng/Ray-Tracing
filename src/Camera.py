@@ -9,8 +9,9 @@ class Camera(object):
         self.screen_resolution:tuple[int,int] = (camera_data.image_width, camera_data.image_height)
 
         self.w = (self.look_direction - self.position).normalized()
-        self.u:Vector3 = camera_data.up_vector.normalized()
-        self.v:Vector3 = self.w.cross(self.u).normalized()
+        self.v:Vector3 = camera_data.up_vector.normalized()
+        self.u:Vector3 = self.w.cross(self.v).normalized()
+         
 
     def plane_intersect(self, plane:ObjectData, ray_position:Vector3, ray_direction:Vector3):
         plane_point:Vector3 = plane.get_vetor("point_on_plane")
@@ -74,13 +75,12 @@ class Camera(object):
         print("P3")
         print(f"{width} {height}")
         print("255")
-        screen_position:Vector3 = self.position + self.w*self.screen_distance 
+        screen_position:Vector3 = self.position + self.w*self.screen_distance
         for y in range(height):
-            for x in range(width):
+            for x in range(width):  
                 u_cord = (x / (width - 1)) - 0.5
                 v_cord = (y / (height - 1)) - 0.5
                 pixel_position:Vector3 = screen_position + u_cord*self.u + (-v_cord)*self.v
                 pixel_direction:Vector3 = (pixel_position - self.position).normalized()
-
                 color = self.trace_ray(scene, self.position, pixel_direction)
                 print(f"{int(color.x)} {int(color.y)} {int(color.z)}")
