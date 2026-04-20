@@ -9,8 +9,8 @@ class Camera(object):
         self.screen_resolution:tuple[int,int] = (camera_data.image_width, camera_data.image_height)
 
         self.w = (self.look_direction - self.position).normalized()
-        self.v:Vector3 = camera_data.up_vector.normalized()
-        self.u:Vector3 = self.w.cross(self.v).normalized()
+        self.u:Vector3 = camera_data.up_vector.cross(self.w).normalized()
+        self.v:Vector3 = self.w.cross(self.u).normalized()
          
 
     def plane_intersect(self, plane:ObjectData, ray_position:Vector3, ray_direction:Vector3):
