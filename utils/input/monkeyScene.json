@@ -3,8 +3,8 @@
         "lookfrom": [10.0000, 5.0000, 15.0000],
         "lookat": [9.4655, 4.7327, 14.1982],
         "upVector": [-0.1482, 0.9636, -0.2224],
-        "image_width": 1920,
-        "image_height": 1080,
+        "image_width": 200,
+        "image_height": 150,
         "screen_distance": 0.7500
     },
     "globalLight": [0.0100, 0.0100, 0.0100],
