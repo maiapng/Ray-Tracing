@@ -42,9 +42,6 @@ class Camera(object):
             return None
         return t
 
-    # ----------------------------------------------------------------
-    # Nova interseção para malhas (segunda entrega)
-    # ----------------------------------------------------------------
     def mesh_intersect(self, mesh: Mesh, ray_position: Vector3, ray_direction: Vector3):
         """Möller-Trumbore. Retorna (t, normal_interpolada) ou None."""
         best_t = float('inf')

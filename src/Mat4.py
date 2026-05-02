@@ -3,7 +3,6 @@ import math
 from src.Vector3 import Vector3
 
 class Mat4:
-    """Matriz 4x4 para transformações afins."""
 
     def __init__(self, elements=None):
         if elements is None:
@@ -72,7 +71,6 @@ class Mat4:
         ])
 
     def __mul__(self, other):
-        """Multiplicação Mat4 * Mat4"""
         result = [[0.0]*4 for _ in range(4)]
         for i in range(4):
             for j in range(4):
