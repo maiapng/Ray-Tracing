@@ -8,7 +8,7 @@ from utils.Scene.sceneParser import SceneJsonLoader
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Escolhe a cena que servirá como input
-scene_file = Path(__file__).parent / "utils" / "input" / "mirrorScene.json" 
+scene_file = Path(__file__).parent / "utils" / "input" / "testScene.json" 
 
 def main():
     scene = SceneJsonLoader.load_file(str(scene_file))
@@ -36,14 +36,15 @@ def main():
     camera = Camera(scene.camera)
     camera.trace_image(scene)
 
-    # Cria a pasta output/, caso ela não exista
-    Path("output").mkdir(exist_ok=True)
 
     # Salva e mostra a imagem JPG
     im = Image.open("resultado.ppm")
     nm = str(int(time()))
     im.show()
-    im.save(f"output/{nm}.jpg")
+    salvar = False
+    if(salvar):
+        Path("output").mkdir(exist_ok=True)
+        im.save(f"output/{nm}.jpg")
     im.close()
 
 
