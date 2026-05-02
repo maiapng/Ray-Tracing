@@ -2,15 +2,13 @@ import sys
 from pathlib import Path
 from time import time
 from PIL import Image
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
 from src.Camera import Camera
 from utils.Scene.sceneParser import SceneJsonLoader
 
-# Escolhe a cena que servirá como input
-scene_file = Path(__file__).parent / "utils" / "input" / "sampleScene.json"   # ou a que quiseres
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# Escolhe a cena que servirá como input
+scene_file = Path(__file__).parent / "utils" / "input" / "mirrorScene.json" 
 
 def main():
     scene = SceneJsonLoader.load_file(str(scene_file))
