@@ -79,33 +79,42 @@ class Camera(object):
 
     def scene_intersect(self, scene: SceneData, ray_position: Vector3, ray_direction: Vector3):
         Object = None
+        hit_normal = None
+        hit_material = None
         nearness = float('inf')
         for obj in scene.objects:
-            t = None
-            n = None
             if obj.obj_type == "plane":
                 t = self.plane_intersect(obj, ray_position, ray_direction)
-                if t is not None:
-                    n = obj.get_vetor("normal")
+                if t is not None and t < nearness:
+                    nearness = t
+                    Object = obj
+                    hit_normal = obj.get_vetor("normal").normalized()
+                    hit_material = obj.material
             elif obj.obj_type == "sphere":
                 t = self.sphere_intersect(obj, ray_position, ray_direction)
+                if t is not None and t < nearness:
+                    nearness = t
+                    Object = obj
+                    hit_point = ray_position + ray_direction * t
+                    hit_normal = (hit_point - obj.relative_pos).normalized()
+                    hit_material = obj.material
             elif obj.obj_type == "mesh":
                 if not hasattr(obj, 'mesh') or obj.mesh is None:
                     continue
                 result = self.mesh_intersect(obj.mesh, ray_position, ray_direction)
                 if result is not None:
                     t, n = result
-            if t is not None and t < nearness:
-                nearness = t
-                Object = obj
-                Object._hit_normal = n
-        return nearness, Object
+                    if t < nearness:
+                        nearness = t
+                        Object = obj
+                        hit_normal = n
+                        hit_material = obj.material
+        return nearness, Object, hit_normal, hit_material
 
     def trace_ray(self, scene: SceneData, ray_position: Vector3, ray_direction: Vector3):
-        t, obj = self.scene_intersect(scene, ray_position, ray_direction)
+        t, obj, N, mat = self.scene_intersect(scene, ray_position, ray_direction)
         if obj:
-            color = obj.material.color
-            return Vector3(color.r * 255, color.g * 255, color.b * 255)
+            return Vector3(mat.color.r * 255, mat.color.g * 255, mat.color.b * 255)
         return Vector3(0, 0, 0)
 
     def trace_image(self, scene: SceneData):
