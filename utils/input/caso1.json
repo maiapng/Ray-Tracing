@@ -26,8 +26,8 @@
     "lookfrom": [-1.36, 7.34, 30.44],
     "lookat": [-1.30, 7.50, 29.35],
     "upVector": [0, 1, 0],
-    "image_width": 200,
-    "image_height": 200,
+    "image_width": 600,
+    "image_height": 600,
     "screen_distance": 1.0
   },
 
