@@ -12,10 +12,8 @@ class Camera(object):
 
         self.w = (self.look_direction - self.position).normalized()
 
-        self.u: Vector3 = camera_data.up_vector.cross(self.w).normalized()
-        self.v: Vector3 = self.w.cross(self.u).normalized()
-
-        self._mirror_h = (self.u.x < 0)
+        self.u: Vector3 = self.w.cross(camera_data.up_vector).normalized()
+        self.v: Vector3 = self.u.cross(self.w).normalized()
 
     def plane_intersect(self, plane: ObjectData, ray_position: Vector3, ray_direction: Vector3):
         plane_point: Vector3 = plane.relative_pos
@@ -132,12 +130,10 @@ class Camera(object):
             file.write(f"P3\n{width} {height}\n255\n")
             screen_position: Vector3 = self.position + self.w * self.screen_distance
             for y in range(height):
+                print(f"{y*100 // height}%")
                 for x in range(width):
                     u_cord = (x / (width - 1)) - 0.5
                     v_cord = (y / (height - 1)) - 0.5
-
-                    if self._mirror_h:
-                        u_cord = -u_cord
 
                     pixel_position: Vector3 = screen_position + u_cord * self.u + (-v_cord) * self.v
                     pixel_direction: Vector3 = (pixel_position - self.position).normalized()

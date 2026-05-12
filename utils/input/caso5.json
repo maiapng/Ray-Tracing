@@ -1,0 +1,57 @@
+{
+    "camera":     {
+        "lookfrom": [10.0000, 5.0000, 15.0000],
+        "lookat": [9.4655, 4.7327, 14.1982],
+        "upVector": [-0.1482, 0.9636, -0.2224],
+        "image_width": 384,
+        "image_height": 216,
+        "screen_distance": 0.7500
+    },
+    "globalLight": [1, 1, 1],
+    "materials": {
+        "material0":         {
+            "name": "material0",
+            "color": [0.3000, 0.8000, 0.4000],
+            "ks": [0.0000, 0.0000, 0.0000],
+            "ka": [0.3000, 0.8000, 0.4000],
+            "ns": 4.0000
+        },
+        "material5":         {
+            "name": "material5",
+            "color": [1, 1, 1],
+            "ks": [0.5000, 0.5000, 0.5000],
+            "ka": [1.0000, 1.0000, 1.0000],
+            "ns": 250.0000
+        }
+    },
+    "objects": [
+        {
+            "type": "plane",
+            "relativePos": [0.0000, -7.0000, 0.0000],
+            "material": "material0",
+            "normal": [0.0000, 1.0000, 0.0000]
+        },
+        {
+            "type": "mesh",
+            "relativePos": [-0.0299, -2.9151, 4.2779],
+            "material": "material5",
+            "path": "inputs/monkey.obj",
+            "transform": [
+                { "type": "scaling", "factors": [2, 1, 1] },
+                { "type": "rotation", "angle": [0, 0, 0] },
+                { "type": "translation", "vector": [0, -3, 4] }
+            ]
+        },
+        {
+            "type": "mesh",
+            "relativePos": [-2.0299, -4.9151, 5.2779],
+            "material": "material5",
+            "path": "inputs/monkey.obj",
+            "transform": [
+                { "type": "scaling", "factors": [1.5, 1.5, 1.5] },
+                { "type": "rotation", "angle": [0, 0, 0] },
+                { "type": "translation", "vector": [0, 0, 4] }
+            ]
+        }
+    ]
+}

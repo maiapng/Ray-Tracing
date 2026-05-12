@@ -49,28 +49,21 @@ def load_mesh_from_obj(obj_data):
                             obj_data.material.color.b)
 
     transform = Mat4.identity()
-    
+    #transform = Mat4.translation(obj_data.relative_pos) * transform
     for t in obj_data.transforms:
         ttype = t.t_type
         val = t.data
         if ttype == "translation":
-            trans = Mat4.translation(val)
+            transform = Mat4.translation(val) * transform
         elif ttype == "scaling":
-            trans = Mat4.scaling(val.x, val.y, val.z)
+            transform = Mat4.scaling(val.x, val.y, val.z) * transform
         elif ttype == "rotation":
-            rot_x = Mat4.rotation_x(val.x)
-            rot_y = Mat4.rotation_y(val.y)
-            rot_z = Mat4.rotation_z(val.z)
-            trans = rot_z * rot_y * rot_x
-        else:
-            continue
-        
-        transform = trans * transform
-
-    transform = Mat4.translation(obj_data.relative_pos) * transform
+            transform = Mat4.rotation_z(math.radians(val.z)) * transform
+            transform = Mat4.rotation_y(math.radians(-val.y)) * transform
+            transform = Mat4.rotation_x(math.radians(val.x)) * transform
+    #transform = Mat4.translation(obj_data.relative_pos) * transform
 
     world_vertices = [transform.transform_point(v) for v in local_vertices]
-    
     world_normals = [transform.transform_normal(n) for n in vertex_normals]
 
     return Mesh(world_vertices, triangles, world_normals, diffuse_color)

@@ -8,7 +8,7 @@ from utils.Scene.sceneParser import SceneJsonLoader
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Escolhe a cena que servirá como input
-scene_file = Path(__file__).parent / "utils" / "input" / "testScene.json" 
+scene_file = Path(__file__).parent / "utils" / "input" / "caso4.json" 
 
 def main():
     scene = SceneJsonLoader.load_file(str(scene_file))
@@ -41,7 +41,7 @@ def main():
     im = Image.open("resultado.ppm")
     nm = str(int(time()))
     im.show()
-    salvar = False
+    salvar = True
     if(salvar):
         Path("output").mkdir(exist_ok=True)
         im.save(f"output/{nm}.jpg")
