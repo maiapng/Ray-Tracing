@@ -38,6 +38,7 @@ def main():
 
 
     # Salva e mostra a imagem JPG
+    sys.stdout.flush()
     im = Image.open("resultado.ppm")
     nm = str(int(time()))
     im.show()
