@@ -16,7 +16,7 @@ def init_worker(position, u, v, screen_position, width, height, scene):
     state['height'] = height
     state['scene'] = scene
 
-def plane_intersect_fn(plane, ray_position, ray_direction):
+def plane_intersect(plane, ray_position, ray_direction):
     plane_point = plane.relative_pos
     plane_normal = plane.get_vetor("normal")
     if ray_direction.dot(plane_normal) == 0:
@@ -26,7 +26,7 @@ def plane_intersect_fn(plane, ray_position, ray_direction):
         return None
     return t
 
-def sphere_intersect_fn(sphere, ray_position, ray_direction):
+def sphere_intersect(sphere, ray_position, ray_direction):
     sphere_center = sphere.relative_pos
     radius = sphere.get_num("radius")
     vetor_radius = ray_position - sphere_center
@@ -41,7 +41,7 @@ def sphere_intersect_fn(sphere, ray_position, ray_direction):
         return None
     return t
 
-def mesh_intersect_fn(mesh, ray_position, ray_direction):
+def mesh_intersect(mesh, ray_position, ray_direction):
     best_t = float('inf')
     best_normal = None
     for tri in mesh.triangles:
@@ -75,21 +75,21 @@ def mesh_intersect_fn(mesh, ray_position, ray_direction):
         return None
     return best_t, best_normal
 
-def scene_intersect_fn(scene, ray_position, ray_direction):
+def scene_intersect(scene, ray_position, ray_direction):
     Object = None
     hit_normal = None
     hit_material = None
     nearness = float('inf')
     for obj in scene.objects:
         if obj.obj_type == "plane":
-            t = plane_intersect_fn(obj, ray_position, ray_direction)
+            t = plane_intersect(obj, ray_position, ray_direction)
             if t is not None and t < nearness:
                 nearness = t
                 Object = obj
                 hit_normal = obj.get_vetor("normal").normalized()
                 hit_material = obj.material
         elif obj.obj_type == "sphere":
-            t = sphere_intersect_fn(obj, ray_position, ray_direction)
+            t = sphere_intersect(obj, ray_position, ray_direction)
             if t is not None and t < nearness:
                 nearness = t
                 Object = obj
@@ -99,7 +99,7 @@ def scene_intersect_fn(scene, ray_position, ray_direction):
         elif obj.obj_type == "mesh":
             if not hasattr(obj, 'mesh') or obj.mesh is None:
                 continue
-            result = mesh_intersect_fn(obj.mesh, ray_position, ray_direction)
+            result = mesh_intersect(obj.mesh, ray_position, ray_direction)
             if result is not None:
                 t, n = result
                 if t < nearness:
@@ -108,6 +108,70 @@ def scene_intersect_fn(scene, ray_position, ray_direction):
                     hit_normal = n
                     hit_material = obj.material
     return nearness, Object, hit_normal, hit_material
+
+def in_shadow(scene, shadow_origin, light_dir, dist_to_light, origin_obj):
+    for obj in scene.objects:
+        if obj is origin_obj:
+            continue
+        if obj.obj_type == "plane":
+            t = plane_intersect(obj, shadow_origin, light_dir)
+            if t is not None and t < dist_to_light:
+                return True
+        elif obj.obj_type == "sphere":
+            t = sphere_intersect(obj, shadow_origin, light_dir)
+            if t is not None and t < dist_to_light:
+                return True
+        elif obj.obj_type == "mesh":
+            if not hasattr(obj, 'mesh') or obj.mesh is None:
+                continue
+            result = mesh_intersect(obj.mesh, shadow_origin, light_dir)
+            if result is not None:
+                t, _ = result
+                if t < dist_to_light:
+                    return True
+    return False
+
+
+def phong_shade(hit_point, normal, view_dir, material, scene, origin_obj):
+    ia = scene.global_light.color
+    ka = material.ka
+    kd = material.color
+    ks = material.ks
+    ns = material.ns if material.ns > 0 else 1.0
+
+    r = ka.r * ia.r
+    g = ka.g * ia.g
+    b = ka.b * ia.b
+
+    for light in scene.light_list:
+        l_vec = light.pos - hit_point
+        dist_to_light = l_vec.length()
+        L = l_vec * (1.0 / dist_to_light)
+
+        shadow_origin = hit_point + normal * 1e-4
+        if in_shadow(scene, shadow_origin, L, dist_to_light, origin_obj):
+            continue
+
+        il = light.color
+        ilr = il.r
+        ilg = il.g
+        ilb = il.b
+
+        ndotl = max(0.0, normal.dot(L))
+        R = (normal * (2.0 * ndotl) - L).normalized()
+        rdotv = max(0.0, R.dot(view_dir))
+        spec = rdotv ** ns
+
+        r += kd.r * ndotl * ilr + ks.r * spec * ilr
+        g += kd.g * ndotl * ilg + ks.g * spec * ilg
+        b += kd.b * ndotl * ilb + ks.b * spec * ilb
+
+    return Vector3(
+        min(255, max(0, r * 255)),
+        min(255, max(0, g * 255)),
+        min(255, max(0, b * 255)),
+    )
+
 
 def trace_row_worker(y):
     position = state['position']
@@ -123,9 +187,11 @@ def trace_row_worker(y):
         v_cord = (y / (height - 1)) - 0.5
         pixel_position = screen_position + u_cord * u + (-v_cord) * v
         pixel_direction = (pixel_position - position).normalized()
-        _, obj, _, mat = scene_intersect_fn(scene, position, pixel_direction)
+        t, obj, normal, mat = scene_intersect(scene, position, pixel_direction)
         if obj:
-            row.append(Vector3(mat.color.r * 255, mat.color.g * 255, mat.color.b * 255))
+            hit_point = position + pixel_direction * t
+            view_dir = (position - hit_point).normalized()
+            row.append(phong_shade(hit_point, normal, view_dir, mat, scene, obj))
         else:
             row.append(Vector3(0, 0, 0))
     return y, row
@@ -143,19 +209,19 @@ class Camera(object):
         self.v: Vector3 = self.u.cross(self.w).normalized()
 
     def plane_intersect(self, plane, ray_position, ray_direction):
-        return plane_intersect_fn(plane, ray_position, ray_direction)
+        return plane_intersect(plane, ray_position, ray_direction)
 
     def sphere_intersect(self, sphere, ray_position, ray_direction):
-        return sphere_intersect_fn(sphere, ray_position, ray_direction)
+        return sphere_intersect(sphere, ray_position, ray_direction)
 
     def mesh_intersect(self, mesh, ray_position, ray_direction):
-        return mesh_intersect_fn(mesh, ray_position, ray_direction)
+        return mesh_intersect(mesh, ray_position, ray_direction)
 
     def scene_intersect(self, scene, ray_position, ray_direction):
-        return scene_intersect_fn(scene, ray_position, ray_direction)
+        return scene_intersect(scene, ray_position, ray_direction)
 
     def trace_ray(self, scene, ray_position, ray_direction):
-        _, obj, _, mat = scene_intersect_fn(scene, ray_position, ray_direction)
+        _, obj, _, mat = scene_intersect(scene, ray_position, ray_direction)
         if obj:
             return Vector3(mat.color.r * 255, mat.color.g * 255, mat.color.b * 255)
         return Vector3(0, 0, 0)
