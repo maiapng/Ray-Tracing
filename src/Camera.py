@@ -146,7 +146,7 @@ def phong_shade(hit_point, normal, view_dir, material, scene, origin_obj):
     for light in scene.light_list:
         l_vec = light.pos - hit_point
         dist_to_light = l_vec.length()
-        L = l_vec * (1.0 / dist_to_light)
+        L = l_vec.normalized()
 
         shadow_origin = hit_point + normal * 1e-4
         if in_shadow(scene, shadow_origin, L, dist_to_light, origin_obj):
