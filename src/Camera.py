@@ -1,5 +1,5 @@
 from src.Vector3 import Vector3
-from utils.Scene.sceneSchema import SceneData, CameraData, ObjectData
+from utils.Scene.sceneSchema import SceneData, CameraData
 from src.Mesh import Mesh, load_mesh_from_obj
 import sys
 import os
@@ -132,6 +132,72 @@ def in_shadow(scene, shadow_origin, light_dir, dist_to_light, origin_obj):
     return False
 
 
+MAX_DEPTH = 3
+
+
+def reflect_direction(direction, normal):
+    return direction - normal * (2.0 * direction.dot(normal))
+
+
+def refract_direction(direction, normal, ior_origin, ior_target):
+    cos_i = -direction.dot(normal)
+    if cos_i < 0:
+        cos_i = -cos_i
+        normal = normal * -1
+        ior_origin, ior_target = ior_target, ior_origin
+    ior_ratio = ior_origin / ior_target
+    sin2_t = ior_ratio ** 2 * (1.0 - cos_i ** 2)
+    if sin2_t > 1.0:
+        return None
+    cos_t = (1.0 - sin2_t) ** 0.5
+    return direction * ior_ratio + normal * (ior_ratio * cos_i - cos_t)
+
+
+def trace_row_worker_recursive(scene, ray_origin, ray_direction, depth):
+    if depth > MAX_DEPTH:
+        return Vector3(0, 0, 0)
+
+    t, obj, normal, material = scene_intersect(scene, ray_origin, ray_direction)
+    if obj is None:
+        return Vector3(0, 0, 0)
+
+    hit_point = ray_origin + ray_direction * t
+    view_dir = (ray_origin - hit_point).normalized()
+
+    color = phong_shade(hit_point, normal, view_dir, material, scene, obj)
+
+    kr = material.kr
+    if kr.r > 0 or kr.g > 0 or kr.b > 0:
+        reflected_direction = reflect_direction(ray_direction, normal).normalized()
+        reflected_origin = hit_point + normal * 1e-4
+        reflected_color = trace_row_worker_recursive(scene, reflected_origin, reflected_direction, depth + 1)
+        color = Vector3(
+            color.x + kr.r * reflected_color.x,
+            color.y + kr.g * reflected_color.y,
+            color.z + kr.b * reflected_color.z,
+        )
+
+    kt = material.kt
+    if kt.r > 0 or kt.g > 0 or kt.b > 0:
+        ior_air = 1.0
+        ior_object = material.ni if material.ni > 0 else 1.0
+        refracted_direction = refract_direction(ray_direction, normal, ior_air, ior_object)
+        if refracted_direction is not None:
+            refracted_origin = hit_point - normal * 1e-4
+            refracted_color = trace_row_worker_recursive(scene, refracted_origin, refracted_direction.normalized(), depth + 1)
+            color = Vector3(
+                color.x + kt.r * refracted_color.x,
+                color.y + kt.g * refracted_color.y,
+                color.z + kt.b * refracted_color.z,
+            )
+
+    return Vector3(
+        min(255, max(0, color.x)),
+        min(255, max(0, color.y)),
+        min(255, max(0, color.z)),
+    )
+
+
 def phong_shade(hit_point, normal, view_dir, material, scene, origin_obj):
     ia = scene.global_light.color
     ka = material.ka
@@ -187,13 +253,7 @@ def trace_row_worker(y):
         v_cord = (y / (height - 1)) - 0.5
         pixel_position = screen_position + u_cord * u + (-v_cord) * v
         pixel_direction = (pixel_position - position).normalized()
-        t, obj, normal, mat = scene_intersect(scene, position, pixel_direction)
-        if obj:
-            hit_point = position + pixel_direction * t
-            view_dir = (position - hit_point).normalized()
-            row.append(phong_shade(hit_point, normal, view_dir, mat, scene, obj))
-        else:
-            row.append(Vector3(0, 0, 0))
+        row.append(trace_row_worker_recursive(scene, position, pixel_direction, 0))
     return y, row
 
 
@@ -219,12 +279,6 @@ class Camera(object):
 
     def scene_intersect(self, scene, ray_position, ray_direction):
         return scene_intersect(scene, ray_position, ray_direction)
-
-    def trace_ray(self, scene, ray_position, ray_direction):
-        _, obj, _, mat = scene_intersect(scene, ray_position, ray_direction)
-        if obj:
-            return Vector3(mat.color.r * 255, mat.color.g * 255, mat.color.b * 255)
-        return Vector3(0, 0, 0)
 
     def trace_image(self, scene: SceneData):
         for obj in scene.objects:
