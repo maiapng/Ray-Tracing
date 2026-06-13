@@ -153,7 +153,7 @@ def refract_direction(direction, normal, ior_origin, ior_target):
     return direction * ior_ratio + normal * (ior_ratio * cos_i - cos_t)
 
 
-def trace_row_worker_recursive(scene, ray_origin, ray_direction, depth):
+def trace_recursive(scene, ray_origin, ray_direction, depth):
     if depth > MAX_DEPTH:
         return Vector3(0, 0, 0)
 
@@ -170,7 +170,7 @@ def trace_row_worker_recursive(scene, ray_origin, ray_direction, depth):
     if kr.r > 0 or kr.g > 0 or kr.b > 0:
         reflected_direction = reflect_direction(ray_direction, normal).normalized()
         reflected_origin = hit_point + normal * 1e-4
-        reflected_color = trace_row_worker_recursive(scene, reflected_origin, reflected_direction, depth + 1)
+        reflected_color = trace_recursive(scene, reflected_origin, reflected_direction, depth + 1)
         color = Vector3(
             color.x + kr.r * reflected_color.x,
             color.y + kr.g * reflected_color.y,
@@ -184,7 +184,7 @@ def trace_row_worker_recursive(scene, ray_origin, ray_direction, depth):
         refracted_direction = refract_direction(ray_direction, normal, ior_air, ior_object)
         if refracted_direction is not None:
             refracted_origin = hit_point - normal * 1e-4
-            refracted_color = trace_row_worker_recursive(scene, refracted_origin, refracted_direction.normalized(), depth + 1)
+            refracted_color = trace_recursive(scene, refracted_origin, refracted_direction.normalized(), depth + 1)
             color = Vector3(
                 color.x + kt.r * refracted_color.x,
                 color.y + kt.g * refracted_color.y,
@@ -253,7 +253,7 @@ def trace_row_worker(y):
         v_cord = (y / (height - 1)) - 0.5
         pixel_position = screen_position + u_cord * u + (-v_cord) * v
         pixel_direction = (pixel_position - position).normalized()
-        row.append(trace_row_worker_recursive(scene, position, pixel_direction, 0))
+        row.append(trace_recursive(scene, position, pixel_direction, 0))
     return y, row
 
 
