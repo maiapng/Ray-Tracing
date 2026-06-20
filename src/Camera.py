@@ -172,9 +172,9 @@ def trace_recursive(scene, ray_origin, ray_direction, depth):
         reflected_origin = hit_point + normal * 1e-4
         reflected_color = trace_recursive(scene, reflected_origin, reflected_direction, depth + 1)
         color = Vector3(
-            color.x + kr.r * reflected_color.x,
-            color.y + kr.g * reflected_color.y,
-            color.z + kr.b * reflected_color.z,
+            color.x * (1 - kr.r) + kr.r * reflected_color.x,
+            color.y * (1 - kr.g) + kr.g * reflected_color.y,
+            color.z * (1 - kr.b) + kr.b * reflected_color.z,
         )
 
     kt = material.kt
@@ -186,9 +186,9 @@ def trace_recursive(scene, ray_origin, ray_direction, depth):
             refracted_origin = hit_point - normal * 1e-4
             refracted_color = trace_recursive(scene, refracted_origin, refracted_direction.normalized(), depth + 1)
             color = Vector3(
-                color.x + kt.r * refracted_color.x,
-                color.y + kt.g * refracted_color.y,
-                color.z + kt.b * refracted_color.z,
+                color.x * (1 - kt.r) + kt.r * refracted_color.x,
+                color.y * (1 - kt.g) + kt.g * refracted_color.y,
+                color.z * (1 - kt.b) + kt.b * refracted_color.z,
             )
 
     return Vector3(

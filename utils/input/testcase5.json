@@ -1,0 +1,146 @@
+{
+  "globalLight": [0.12, 0.12, 0.12],
+
+  "camera": {
+    "lookfrom": [0.0, 4.0, 10.0],
+    "lookat": [0.0, -0.2, 0.0],
+    "upVector": [0.0, 1.0, 0.0],
+    "image_width": 900,
+    "image_height": 500,
+    "screen_distance": 0.9
+  },
+
+  "lights": [
+    {
+      "name": "Luz Especular Frontal",
+      "position": [0.0, 3.0, -3.5],
+      "color": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "Luz Suave Superior",
+      "position": [0.0, 15.0, 8.0],
+      "color": [0.25, 0.25, 0.25]
+    }
+  ],
+
+  "materials": {
+    "mat_plano_escuro": {
+      "color": [0.18, 0.21, 0.24],
+      "ka": [0.02, 0.025, 0.03],
+      "kr": [0.0, 0.0, 0.0],
+      "ns": 10
+    },
+    "mat_parede_fundo": {
+      "color": [0.5, 0.3, 0.15],
+      "ka": [0.5, 0.3, 0.15],
+      "kr": [0.0, 0.0, 0.0],
+      "ns": 10
+    },
+    "mat_esfera_referencia": {
+      "color": [0.8, 0.2, 0.2],
+      "ka": [0.8, 0.2, 0.2],
+      "kr": [0.2, 0.2, 0.2],
+      "ns": 64
+    },
+    "mat_vidro_ar": {
+      "color": [1.0, 1.0, 1.0],
+      "ka": [0.01, 0.01, 0.01],
+      "kr": [0.04, 0.04, 0.04],
+      "ns": 256,
+      "ni": 1.0,
+      "kt": [0.99,0.99,0.99]
+
+    },
+    "mat_vidro_agua": {
+      "color": [1.0, 1.0, 1.0],
+      "ka": [0.01, 0.01, 0.01],
+      "kr": [0.04, 0.04, 0.04],
+      "ns": 256,
+      "ni": 1.33,
+      "kt": [0.98,0.98,0.98]
+    },
+    "mat_vidro_crown": {
+      "color": [1.0, 1.0, 1.0],
+      "ka": [0.01, 0.01, 0.01],
+      "kr": [0.05, 0.05, 0.05],
+      "ns": 256,
+      "ni": 1.52,
+      "kt": [0.98,0.98,0.98]
+    },
+    "mat_vidro_flint": {
+      "color": [1.0, 1.0, 1.0],
+      "ka": [0.01, 0.01, 0.01],
+      "kr": [0.06, 0.06, 0.06],
+      "ns": 256,
+      "ni": 1.72,
+      "kt": [0.98,0.98,0.98]
+    },
+    "mat_diamante": {
+      "color": [1.0, 1.0, 1.0],
+      "ka": [0.01, 0.01, 0.01],
+      "kr": [0.17, 0.17, 0.17],
+      "ns": 512,
+      "ni": 2.42,
+      "kt": [0.98,0.98,0.98]
+    }
+  },
+
+  "objects": [
+    {
+      "name": "Plano de Apoio Escuro",
+      "type": "plane",
+      "point_on_plane": [0.0, -1.3, 0.0],
+      "normal": [0.0, 1.0, 0.0],
+      "material": "mat_plano_escuro"
+    },
+    {
+      "name": "Parede do Fundo",
+      "type": "plane",
+      "point_on_plane": [0.0, 0.0, -5.5],
+      "normal": [0.0, 0.0, 1.0],
+      "material": "mat_parede_fundo"
+    },
+    {
+      "name": "Esfera Referência Difusa (atrás)",
+      "type": "sphere",
+      "center": [0.0, -0.5, -4.5],
+      "radius": 0.6,
+      "material": "mat_esfera_referencia"
+    },
+    {
+      "name": "Esfera ni=1.0 (ar - sem refração)",
+      "type": "sphere",
+      "center": [-4.8, 0.0, 0.0],
+      "radius": 1.1,
+      "material": "mat_vidro_ar"
+    },
+    {
+      "name": "Esfera ni=1.33 (água)",
+      "type": "sphere",
+      "center": [-2.4, 0.0, 0.0],
+      "radius": 1.1,
+      "material": "mat_vidro_agua"
+    },
+    {
+      "name": "Esfera ni=1.52 (vidro crown)",
+      "type": "sphere",
+      "center": [0.0, 0.0, 0.0],
+      "radius": 1.1,
+      "material": "mat_vidro_crown"
+    },
+    {
+      "name": "Esfera ni=1.72 (vidro flint)",
+      "type": "sphere",
+      "center": [2.4, 0.0, 0.0],
+      "radius": 1.1,
+      "material": "mat_vidro_flint"
+    },
+    {
+      "name": "Esfera ni=2.42 (diamante)",
+      "type": "sphere",
+      "center": [4.8, 0.0, 0.0],
+      "radius": 1.1,
+      "material": "mat_diamante"
+    }
+  ]
+}
