@@ -1,107 +1,109 @@
 {
-  "globalLight": [0.1, 0.1, 0.1],
+  "globalLight": [0.135, 0.135, 0.14],
 
   "camera": {
-    "lookfrom": [278, 278, -800],
-    "lookat": [278, 278, 0],
-    "upVector": [0, 1, 0],
-    "image_width": 600,
-    "image_height": 600,
-    "screen_distance": 1.5
+    "lookfrom": [0.0, 4.6, 10.0],
+    "lookat": [0.0, -0.1, 0.0],
+    "upVector": [0.0, 1.0, 0.0],
+    "image_width": 900,
+    "image_height": 500,
+    "screen_distance": 0.9
   },
 
   "lights": [
     {
-      "name": "Luz do Teto",
-      "position": [278, 548, 278],
+      "name": "Luz Branca Especular",
+      "position": [0.0, 3.0, -2.8],
       "color": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "Luz Branca",
+      "position": [0.0, 20.0, 10.0],
+      "color": [0.2, 0.2, 0.2]
     }
   ],
 
   "materials": {
-    "parede_branca": {
-      "color": [0.73, 0.73, 0.73],
-      "ka": [0.73, 0.73, 0.73],
-      "kr": [0.0, 0.0, 0.0],
+    "mat_plano_escuro": {
+      "color": [0.18, 0.21, 0.24],
+      "ka": [0.02, 0.025, 0.03],
+      "ks": [0.0, 0.0, 0.0],
       "ns": 10
     },
-    "parede_vermelha": {
-      "color": [0.65, 0.05, 0.05],
-      "ka": [0.65, 0.05, 0.05],
-      "kr": [0.0, 0.0, 0.0],
-      "ns": 10
+    "mat_opalescente": {
+      "color": [0.82, 0.48, 0.74],
+      "ka": [0.05, 0.03, 0.045],
+      "ks": [0.0, 0.0, 1.0],
+      "ns": 180
     },
-    "parede_verde": {
-      "color": [0.12, 0.45, 0.15],
-      "ka": [0.12, 0.45, 0.15],
-      "kr": [0.0, 0.0, 0.0],
-      "ns": 10
+    "mat_ambiente_diferente": {
+      "color": [0.18, 0.48, 0.78],
+      "ka": [0.22, 0.08, 0.025],
+      "ks": [0.65, 0.65, 0.65],
+      "ns": 80
     },
-    "mat_espelho": {
-      "color": [0.0, 0.0, 0.0],
-      "ka": [0.0, 0.0, 0.0],
-      "kr": [0.98, 0.98, 0.98],
-      "ns": 2048
+    "mat_rough_alta": {
+      "color": [0.78, 0.72, 0.62],
+      "ka": [0.08, 0.075, 0.065],
+      "ks": [0.65, 0.65, 0.65],
+      "ns": 8
     },
-    "mat_vidro": {
-      "color": [1.0, 1.0, 1.0],
-      "ka": [0.01, 0.01, 0.01],
-      "kr": [0.05, 0.05, 0.05],
-      "ns": 256,
-      "ni": 1.52,
-      "kt": [0.98,0.98,0.98]
+    "mat_rough_media": {
+      "color": [0.78, 0.72, 0.62],
+      "ka": [0.08, 0.075, 0.065],
+      "ks": [0.65, 0.65, 0.65],
+      "ns": 64
+    },
+    "mat_rough_baixa": {
+      "color": [0.78, 0.72, 0.62],
+      "ka": [0.08, 0.075, 0.065],
+      "ks": [0.65, 0.65, 0.65],
+      "ns": 512
     }
   },
 
   "objects": [
     {
-      "name": "Chão",
+      "name": "Plano de apoio escuro",
       "type": "plane",
-      "point_on_plane": [0, 0, 0],
-      "normal": [0, 1, 0],
-      "material": "parede_branca"
+      "point_on_plane": [0.0, -1.25, 0.0],
+      "normal": [0.0, 1.0, 0.0],
+      "material": "mat_plano_escuro"
     },
     {
-      "name": "Teto",
-      "type": "plane",
-      "point_on_plane": [0, 555, 0],
-      "normal": [0, -1, 0],
-      "material": "parede_branca"
-    },
-    {
-      "name": "Parede do Fundo",
-      "type": "plane",
-      "point_on_plane": [0, 0, 555],
-      "normal": [0, 0, -1],
-      "material": "parede_branca"
-    },
-    {
-      "name": "Parede Esquerda (Vermelha)",
-      "type": "plane",
-      "point_on_plane": [0, 0, 0],
-      "normal": [1, 0, 0],
-      "material": "parede_vermelha"
-    },
-    {
-      "name": "Parede Direita (Verde)",
-      "type": "plane",
-      "point_on_plane": [555, 0, 0],
-      "normal": [-1, 0, 0],
-      "material": "parede_verde"
-    },
-    {
-      "name": "Esfera Espelho (esquerda)",
+      "name": "Esfera opalescente - ks ciano",
       "type": "sphere",
-      "center": [150, 90, 180],
-      "radius": 90,
-      "material": "mat_espelho"
+      "center": [-4.8, 0.0, 0.0],
+      "radius": 1.15,
+      "material": "mat_opalescente"
     },
     {
-      "name": "Esfera de Vidro (direita, ni=1.52)",
+      "name": "Esfera ambiente quente",
       "type": "sphere",
-      "center": [395, 90, 350],
-      "radius": 90,
-      "material": "mat_vidro"
+      "center": [-2.4, 0.0, 0.0],
+      "radius": 1.15,
+      "material": "mat_ambiente_diferente"
+    },
+    {
+      "name": "Esfera roughness alta - ns baixo",
+      "type": "sphere",
+      "center": [0.0, 0.0, 0.0],
+      "radius": 1.15,
+      "material": "mat_rough_alta"
+    },
+    {
+      "name": "Esfera roughness media",
+      "type": "sphere",
+      "center": [2.4, 0.0, 0.0],
+      "radius": 1.15,
+      "material": "mat_rough_media"
+    },
+    {
+      "name": "Esfera roughness baixa - ns alto",
+      "type": "sphere",
+      "center": [4.8, 0.0, 0.0],
+      "radius": 1.15,
+      "material": "mat_rough_baixa"
     }
   ]
 }

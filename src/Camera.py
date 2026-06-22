@@ -66,11 +66,11 @@ def mesh_intersect(mesh, ray_position, ray_direction):
         t = f * edge2.dot(q)
         if t > 0.0001 and t < best_t:
             best_t = t
-            n0 = mesh.vertex_normals[tri[0]]
-            n1 = mesh.vertex_normals[tri[1]]
-            n2 = mesh.vertex_normals[tri[2]]
-            w = 1.0 - u - v
-            best_normal = (n0 * w + n1 * u + n2 * v).normalized()
+            # Normal "flat" da própria face (não interpola normais de vértice).
+            face_normal = edge1.cross(edge2).normalized()
+            if face_normal.dot(ray_direction) > 0:
+                face_normal = face_normal * -1
+            best_normal = face_normal
     if best_t == float('inf'):
         return None
     return best_t, best_normal
@@ -248,12 +248,41 @@ def trace_row_worker(y):
     height = state['height']
     scene = state['scene']
     row = []
+    aspect_ratio = width / height
     for x in range(width):
-        u_cord = (x / (width - 1)) - 0.5
+        u_cord = ((x / (width - 1)) - 0.5) * aspect_ratio
         v_cord = (y / (height - 1)) - 0.5
         pixel_position = screen_position + u_cord * u + (-v_cord) * v
         pixel_direction = (pixel_position - position).normalized()
         row.append(trace_recursive(scene, position, pixel_direction, 0))
+    return y, row
+
+
+def trace_phong_worker(y):
+    position = state['position']
+    u = state['u']
+    v = state['v']
+    screen_position = state['screen_position']
+    width = state['width']
+    height = state['height']
+    scene = state['scene']
+    row = []
+    aspect_ratio = width / height
+    for x in range(width):
+        u_cord = ((x / (width - 1)) - 0.5) * aspect_ratio
+        v_cord = (y / (height - 1)) - 0.5
+        pixel_position = screen_position + u_cord * u + (-v_cord) * v
+        pixel_direction = (pixel_position - position).normalized()
+
+        t, obj, normal, material = scene_intersect(scene, position, pixel_direction)
+        if obj is None:
+            row.append(Vector3(0, 0, 0))
+            continue
+
+        hit_point = position + pixel_direction * t
+        view_dir = (position - hit_point).normalized()
+        color = phong_shade(hit_point, normal, view_dir, material, scene, obj)
+        row.append(color)
     return y, row
 
 
@@ -298,7 +327,7 @@ class Camera(object):
         init_args = (self.position, self.u, self.v, screen_position, width, height, scene)
         chunksize = max(1, height // (num_workers * 4))
         with mp.Pool(processes=num_workers, initializer=init_worker, initargs=init_args) as pool:
-            for y, row in pool.imap_unordered(trace_row_worker, range(height), chunksize=chunksize):
+            for y, row in pool.imap_unordered(trace_phong_worker, range(height), chunksize=chunksize):
                 pixels[y] = row
 
         print(f"P3\n{width} {height}\n255")
