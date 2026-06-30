@@ -1,6 +1,8 @@
 from src.Vector3 import Vector3
 from utils.Scene.sceneSchema import SceneData, CameraData
 from src.Mesh import Mesh, load_mesh_from_obj
+from src.RevolutionSurface import generate_revolution_mesh
+import json
 import sys
 import os
 import multiprocessing as mp
@@ -96,7 +98,7 @@ def scene_intersect(scene, ray_position, ray_direction):
                 hit_point = ray_position + ray_direction * t
                 hit_normal = (hit_point - obj.relative_pos).normalized()
                 hit_material = obj.material
-        elif obj.obj_type == "mesh":
+        elif obj.obj_type in ("mesh", "revolution"):
             if not hasattr(obj, 'mesh') or obj.mesh is None:
                 continue
             result = mesh_intersect(obj.mesh, ray_position, ray_direction)
@@ -121,7 +123,7 @@ def in_shadow(scene, shadow_origin, light_dir, dist_to_light, origin_obj):
             t = sphere_intersect(obj, shadow_origin, light_dir)
             if t is not None and t < dist_to_light:
                 return True
-        elif obj.obj_type == "mesh":
+        elif obj.obj_type in ("mesh", "revolution"):
             if not hasattr(obj, 'mesh') or obj.mesh is None:
                 continue
             result = mesh_intersect(obj.mesh, shadow_origin, light_dir)
@@ -316,6 +318,16 @@ class Camera(object):
                     obj.mesh = load_mesh_from_obj(obj)
                 except Exception as e:
                     print(f"Erro ao carregar malha {obj.get_property('path')}: {e}", file=sys.stderr)
+                    obj.mesh = None
+            elif obj.obj_type == "revolution":
+                try:
+                    control_points = json.loads(obj.get_property("control_points"))
+                    curve_steps    = int(obj.get_num("curve_steps"))
+                    radial_steps   = int(obj.get_num("radial_steps"))
+                    material_color = Vector3(obj.material.color.r, obj.material.color.g, obj.material.color.b)
+                    obj.mesh = generate_revolution_mesh(control_points, curve_steps, radial_steps, material_color, obj.transforms)
+                except Exception as e:
+                    print(f"Erro ao gerar superfície de revolução: {e}", file=sys.stderr)
                     obj.mesh = None
 
         width = self.screen_resolution[0]

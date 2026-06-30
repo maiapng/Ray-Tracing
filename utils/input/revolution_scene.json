@@ -1,0 +1,69 @@
+{
+  "globalLight": [0.12, 0.12, 0.12],
+
+  "camera": {
+    "lookfrom": [0.0, 6.0, 14.0],
+    "lookat":   [0.0,  2.0,  0.0],
+    "upVector": [0.0,  1.0,  0.0],
+    "image_width":  600,
+    "image_height": 600,
+    "screen_distance": 0.9
+  },
+
+  "lights": [
+    {
+      "name": "Luz Principal",
+      "position": [5.0, 10.0, 8.0],
+      "color": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "Luz extra",
+      "position": [-5.0, 8.0, 5.0],
+      "color": [0.3, 0.3, 0.3]
+    }
+  ],
+
+  "materials": {
+    "mat_chao": {
+      "color": [0.3, 0.3, 0.3],
+      "ka": [0.03, 0.03, 0.03],
+      "ks": [0.1, 0.1, 0.1],
+      "kr": [0.0, 0.0, 0.0],
+      "ns": 10
+    },
+    "mat_vaso": {
+      "color": [0.8, 0.3, 0.1],
+      "ka": [0.08, 0.03, 0.01],
+      "ks": [0.6, 0.6, 0.6],
+      "kr": [0.0, 0.0, 0.0],
+      "ns": 64
+    }
+  },
+
+  "objects": [
+    {
+      "name": "Chao",
+      "type": "plane",
+      "point_on_plane": [0.0, 0.0, 0.0],
+      "normal": [0.0, 1.0, 0.0],
+      "material": "mat_chao"
+    },
+    {
+      "name": "Vaso Bezier",
+      "type": "revolution",
+      "material": "mat_vaso",
+      "control_points": [
+        [0.0, 0.0],
+        [1.5, 1.0],
+        [1.0, 3.0],
+        [1.8, 4.5],
+        [0.5, 6.0]
+      ],
+      "curve_steps": 30,
+      "radial_steps": 48,
+      "transform": [
+        { "type": "translation", "vector": [0, 0, 0] }
+      ]
+    }
+  ]
+}

@@ -193,7 +193,7 @@ class SceneJsonLoader:
                 if key in SceneJsonLoader._POSITION_HINTS:
                     obj.relative_pos = Vector3(v.x, v.y, v.z)
             elif isinstance(val, list) or isinstance(val, dict):
-                pass  # estruturas complexas ignoradas (ex: listas de faces inline)
+                obj.other_properties[key] = json.dumps(val)
 
         return obj
 
@@ -227,3 +227,4 @@ class SceneJsonLoader:
             scene.objects = [SceneJsonLoader._parse_object(o, materials) for o in root["objects"]]
 
         return scene
+    

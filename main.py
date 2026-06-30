@@ -8,7 +8,7 @@ from utils.Scene.sceneParser import SceneJsonLoader
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Escolhe a cena que servirá como input
-scene_file = Path(__file__).parent / "utils" / "input" / "testcase1.json" 
+scene_file = Path(__file__).parent / "utils" / "input" / "revolution_scene.json" 
 
 def main():
     scene = SceneJsonLoader.load_file(str(scene_file))
