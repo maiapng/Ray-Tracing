@@ -1,8 +1,6 @@
 from src.Vector3 import Vector3
 from utils.Scene.sceneSchema import SceneData, CameraData
 from src.Mesh import Mesh, load_mesh_from_obj
-from src.RevolutionSurface import generate_revolution_mesh
-import json
 import sys
 import os
 import multiprocessing as mp
@@ -98,7 +96,7 @@ def scene_intersect(scene, ray_position, ray_direction):
                 hit_point = ray_position + ray_direction * t
                 hit_normal = (hit_point - obj.relative_pos).normalized()
                 hit_material = obj.material
-        elif obj.obj_type in ("mesh", "revolution"):
+        elif obj.obj_type == "mesh":
             if not hasattr(obj, 'mesh') or obj.mesh is None:
                 continue
             result = mesh_intersect(obj.mesh, ray_position, ray_direction)
@@ -123,7 +121,7 @@ def in_shadow(scene, shadow_origin, light_dir, dist_to_light, origin_obj):
             t = sphere_intersect(obj, shadow_origin, light_dir)
             if t is not None and t < dist_to_light:
                 return True
-        elif obj.obj_type in ("mesh", "revolution"):
+        elif obj.obj_type == "mesh":
             if not hasattr(obj, 'mesh') or obj.mesh is None:
                 continue
             result = mesh_intersect(obj.mesh, shadow_origin, light_dir)
@@ -135,6 +133,7 @@ def in_shadow(scene, shadow_origin, light_dir, dist_to_light, origin_obj):
 
 
 MAX_DEPTH = 3
+ANTI_ALIASING = True
 
 
 def reflect_direction(direction, normal):
@@ -254,9 +253,27 @@ def trace_row_worker(y):
     for x in range(width):
         u_cord = ((x / (width - 1)) - 0.5) * aspect_ratio
         v_cord = (y / (height - 1)) - 0.5
-        pixel_position = screen_position + u_cord * u + (-v_cord) * v
-        pixel_direction = (pixel_position - position).normalized()
-        row.append(trace_recursive(scene, position, pixel_direction, 0))
+        if ANTI_ALIASING:
+            half_u = (aspect_ratio / (width - 1)) / 2
+            half_v = (1.0 / (height - 1)) / 2
+            corners = [
+                (u_cord - half_u, v_cord - half_v),
+                (u_cord + half_u, v_cord - half_v),
+                (u_cord - half_u, v_cord + half_v),
+                (u_cord + half_u, v_cord + half_v),
+            ]
+            color = Vector3(0, 0, 0)
+            for cu, cv in corners:
+                pixel_position = screen_position + cu * u + (-cv) * v
+                pixel_direction = (pixel_position - position).normalized()
+                sample = trace_recursive(scene, position, pixel_direction, 0)
+                color = color + sample
+            color = color / 4
+        else:
+            pixel_position = screen_position + u_cord * u + (-v_cord) * v
+            pixel_direction = (pixel_position - position).normalized()
+            color = trace_recursive(scene, position, pixel_direction, 0)
+        row.append(color)
     return y, row
 
 
@@ -318,16 +335,6 @@ class Camera(object):
                     obj.mesh = load_mesh_from_obj(obj)
                 except Exception as e:
                     print(f"Erro ao carregar malha {obj.get_property('path')}: {e}", file=sys.stderr)
-                    obj.mesh = None
-            elif obj.obj_type == "revolution":
-                try:
-                    control_points = json.loads(obj.get_property("control_points"))
-                    curve_steps    = int(obj.get_num("curve_steps"))
-                    radial_steps   = int(obj.get_num("radial_steps"))
-                    material_color = Vector3(obj.material.color.r, obj.material.color.g, obj.material.color.b)
-                    obj.mesh = generate_revolution_mesh(control_points, curve_steps, radial_steps, material_color, obj.transforms)
-                except Exception as e:
-                    print(f"Erro ao gerar superfície de revolução: {e}", file=sys.stderr)
                     obj.mesh = None
 
         width = self.screen_resolution[0]
